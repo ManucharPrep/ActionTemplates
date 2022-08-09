@@ -1,0 +1,36 @@
+name: DeploySTA
+description: 'Deploys a storage account'
+inputs:
+  AZURE_ACCESSTOKEN:
+    required: true
+    description: AZURE_SECRETS
+  RESOURCEGROUP_NAME:
+    required: true
+    description: Resource group name
+  SUBSCRIPTION_ID:
+    required: true
+    description: Subscription ID
+
+runs:
+  using: "composite"
+  steps:
+  
+    # Checkout code
+    - uses: actions/checkout@main
+    
+    # Log into Azure with SPN
+    - name: Log in with Azure
+      uses: azure/login@v1
+      with:
+        creds: '${{ inputs.AZURE_ACCESSTOKEN }}'
+
+    # Deploy Code
+    - name: deploy
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ inputs.SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ inputs.RESOURCEGROUP_NAME }}
+        template: bicep/main.bicep
+        parameters: bicep/parameters/main.parameters.json
+        failOnStdErr: false
+        additionalArguments: --what-if

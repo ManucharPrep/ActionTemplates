@@ -1,0 +1,40 @@
+name: MainTemplate
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  validateBicep:
+    runs-on: ubuntu-latest
+    name: Validate Bicep template
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout repository
+        
+      - id: callPipelineTemplate
+        name: Deploy StorageAccount
+        uses: ./.github/workflows/validate-bicep
+        with:
+          AZURE_ACCESSTOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCEGROUP_NAME: "rg-colruyt"
+          SUBSCRIPTION_ID: "1d0c4d2b-448a-47f3-abbf-6d9ea2b11087"
+
+  deployBicep:
+    runs-on: ubuntu-latest
+    name: Deploy Bicep template
+    if: github.ref == 'refs/heads/main'
+    needs: validateBicep
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout repository
+
+      - id: callPipelineTemplate
+        name: Deploy StorageAccount
+        uses: ./.github/workflows/deploy-bicep
+        with:
+          AZURE_ACCESSTOKEN: ${{ secrets.AZURE_CREDENTIALS }}
+          RESOURCEGROUP_NAME: "rg-colruyt"
+          SUBSCRIPTION_ID: "1d0c4d2b-448a-47f3-abbf-6d9ea2b11087"
