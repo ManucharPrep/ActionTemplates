@@ -1,0 +1,38 @@
+name: deploy-bicep
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_ACCESSTOKEN:
+        required: true
+        description: AZURE_SECRETS
+        type: string
+      RESOURCEGROUP_NAME:
+        required: true
+        description: Resource group name
+        type: string
+      SUBSCRIPTION_ID:
+        required: true
+        description: Subscription ID
+        type: string
+
+jobs:
+  deploy-bicep:
+    name: Deploy bicep template
+    runs-on: ubuntu-latest
+    steps:
+      # Log into Azure with SPN
+      - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+          creds: '${{ inputs.AZURE_ACCESSTOKEN }}'
+
+      # Deploy Code
+      - name: deploy
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ inputs.SUBSCRIPTION_ID }}
+          resourceGroupName: ${{ inputs.RESOURCEGROUP_NAME }}
+          template: bicep/main.bicep
+          parameters: bicep/parameters/main.parameters.json
+          failOnStdErr: false
