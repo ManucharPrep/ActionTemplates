@@ -15,6 +15,15 @@ on:
         required: true
         description: Subscription ID
         type: string
+      TEMPLATE_NAME:
+        required: true
+        description: Template filename
+        type: string
+      ENVIRONMENT:
+        required: true
+        description: Name of folder where parameters reside
+        type: string
+
 
 jobs:
   deploy-bicep:
@@ -33,6 +42,6 @@ jobs:
         with:
           subscriptionId: ${{ inputs.SUBSCRIPTION_ID }}
           resourceGroupName: ${{ inputs.RESOURCEGROUP_NAME }}
-          template: bicep/main.bicep
-          parameters: bicep/parameters/main.parameters.json
+          template: bicep/${{ inputs.TEMPLATE_NAME }}.bicep
+          parameters: bicep/parameters/${{ inputs.ENVIRONMENT }}/${{ inputs.TEMPLATE_NAME }}.parameters.json
           failOnStdErr: false
