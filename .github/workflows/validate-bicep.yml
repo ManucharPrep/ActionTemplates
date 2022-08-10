@@ -15,13 +15,13 @@ on:
         required: true
         description: Subscription ID
         type: string
-      TEMPLATE_NAME:
+      TEMPLATE_FILEPATH:
         required: true
-        description: Template filename
+        description: Full path to templatefile within bicep/
         type: string
-      ENVIRONMENT:
+      PARAMETERS_FILEPATH:
         required: true
-        description: Name of folder where parameters reside
+        description: Full path to parametersfile within bicep/
         type: string
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       - name: Log in with Azure
         uses: azure/login@v1
         with:
-          creds: 'TEMPLATE_NAME'
+          creds: '${{ inputs.AZURE_ACCESSTOKEN }}'
 
       # Deploy Code
       - name: deploy
@@ -41,7 +41,7 @@ jobs:
         with:
           subscriptionId: ${{ inputs.SUBSCRIPTION_ID }}
           resourceGroupName: ${{ inputs.RESOURCEGROUP_NAME }}
-          template: bicep/${{ inputs.TEMPLATE_NAME }}.bicep
-          parameters: bicep/parameters/${{ inputs.ENVIRONMENT }}/${{ inputs.TEMPLATE_NAME }}.parameters.json
+          template: bicep/${{ inputs.TEMPLATE_FILEPATH }}
+          parameters: bicep/${{ inputs.PARAMETERS_FILEPATH }}
           failOnStdErr: false
           additionalArguments: --what-if
